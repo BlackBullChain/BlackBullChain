@@ -96,7 +96,9 @@ Defaults for the launch cluster are in `scripts/bootstrap-validator.sh`.
 - **Phase 3 — Branding polish** clap/help strings, optional glyph swap, version banner.
 - **Phase 4 — Live on Mac Mini** run the bootstrap validator on the Mac Mini with a stable
   gossip entrypoint; open RPC; fund via faucet; (optional) add a second validator.
-- **Phase 5 — Ecosystem** explorer pointed at the RPC, wallet config, docs.
+- **Phase 5 — Ecosystem** ✅ website + block explorer + browser wallet + docs shipped in
+  `src/web/` (Vite/React, Solana-compatible RPC, runtime-editable endpoint). Point it at a
+  live node to go from static site to live explorer.
 
 ## 6. Build & run targets
 

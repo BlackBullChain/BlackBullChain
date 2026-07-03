@@ -28,8 +28,27 @@ blackbullchain/
 │   └── bootstrap-validator.sh      # genesis + launches the first BBC validator
 ├── tests/                          # our own smoke tests (not upstream's)
 └── src/
-    └── node/                       # the Agave fork (upstream tree, rebranded)
+    ├── node/                       # the Agave fork (upstream tree, rebranded)
+    └── web/                        # website + block explorer + browser wallet (Vite/React)
 ```
+
+## Website, explorer & wallet
+
+`src/web/` is a Vite + React + TypeScript app: a landing page explaining the project, a
+live **block explorer**, a **browser wallet** (create/import, send/receive BBC, faucet),
+and **docs** (host a validator, connect, create a wallet). It speaks the Solana-compatible
+JSON-RPC that a BlackBullChain node exposes, and the RPC endpoint is editable at runtime.
+
+```bash
+cd src/web
+npm install
+cp .env.example .env         # set VITE_RPC_URL to your node (default http://localhost:8899)
+npm run dev                  # http://localhost:5173
+npm run build                # static site in dist/ (deploy to Vercel/Netlify)
+```
+
+With no node reachable, the explorer/wallet degrade gracefully ("no node") — start one with
+`scripts/bootstrap-validator.sh`, or point the endpoint at your Mac Mini over Tailscale.
 
 ## Quick start
 

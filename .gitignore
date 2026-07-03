@@ -5,6 +5,11 @@ target/
 # BlackBullChain runtime state from bootstrap-validator.sh
 .blackbull/
 
+# tooling artifacts
+.claude-flow/
+**/node_modules/
+**/dist/
+
 # local env / secrets
 .env
 *.local
