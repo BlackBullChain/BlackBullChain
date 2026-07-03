@@ -10,6 +10,10 @@ export const LAMPORTS_PER_BBC = 1_000_000_000;
 export const DEFAULT_RPC_URL = import.meta.env.VITE_RPC_URL || "http://localhost:8899";
 export const FAUCET_URL = import.meta.env.VITE_FAUCET_URL || "";
 
+// pump.fun page for the $BBC token (set VITE_PUMPFUN_URL to your coin, e.g.
+// https://pump.fun/coin/<mint>). Defaults to pump.fun until the token is live.
+export const PUMPFUN_URL = import.meta.env.VITE_PUMPFUN_URL || "https://pump.fun";
+
 const RPC_KEY = "bbc.rpcUrl";
 
 export function getRpcUrl(): string {

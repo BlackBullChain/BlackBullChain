@@ -17,7 +17,7 @@ function LiveBand() {
   ];
   return (
     <div className="card" style={{ padding: "6px 6px" }}>
-      <div className="grid grid-4" style={{ gap: 0, gridTemplateColumns: "repeat(5, 1fr)" }}>
+      <div className="live-band">
         {items.map((it) => (
           <div key={it.label} style={{ padding: "12px 16px", textAlign: "center" }}>
             <div className="tiny dim" style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}>{it.label}</div>
