@@ -1,0 +1,14 @@
+# Rust build output (also covered by src/node/.gitignore)
+/src/node/target/
+target/
+
+# BlackBullChain runtime state from bootstrap-validator.sh
+.blackbull/
+
+# local env / secrets
+.env
+*.local
+
+# OS / editor
+.DS_Store
+*.swp
