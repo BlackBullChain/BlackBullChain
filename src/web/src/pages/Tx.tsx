@@ -38,6 +38,7 @@ export default function Tx() {
       try {
         const r = await getConnection().getTransaction(sig!, {
           maxSupportedTransactionVersion: 0,
+          commitment: "confirmed",
         });
         if (!alive) return;
         if (!r) {

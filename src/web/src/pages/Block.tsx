@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getConnection } from "../lib/rpc";
-import type { BlockLite } from "../lib/types";
+import { getBlockRaw } from "../lib/rpc";
 import { formatNumber, formatTimestamp, timeAgo } from "../lib/format";
 import { HashLink, CopyButton, Loading, Notice } from "../components/ui";
 
@@ -28,14 +27,10 @@ export default function Block() {
     setData(null);
     (async () => {
       try {
-        const b = (await getConnection().getBlock(slotNum, {
-          transactionDetails: "signatures",
-          rewards: false,
-          maxSupportedTransactionVersion: 0,
-        })) as unknown as BlockLite | null;
+        const b = await getBlockRaw(slotNum);
         if (!alive) return;
         if (!b) {
-          setError("Block not found (the slot may be empty or skipped).");
+          setError("Block not found (the slot may be empty, skipped, or already pruned).");
         } else {
           setData({
             blockhash: b.blockhash,

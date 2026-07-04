@@ -1,8 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { PublicKey } from "@solana/web3.js";
-import { getConnection } from "../lib/rpc";
-import type { BlockLite } from "../lib/types";
+import { getConnection, getBlockRaw } from "../lib/rpc";
 import { useNetworkStats } from "../lib/hooks";
 import { formatBbc, formatNumber, timeAgo } from "../lib/format";
 import { StatCard, HashLink, Loading, Notice } from "../components/ui";
@@ -65,14 +64,12 @@ function LatestBlocks() {
         const recent = avail.slice(-10).reverse();
         const rows = await Promise.all(
           recent.map(async (s) => {
-            const b = (await c
-              .getBlock(s, { transactionDetails: "signatures", rewards: false, maxSupportedTransactionVersion: 0 })
-              .catch(() => null)) as unknown as BlockLite | null;
+            const b = await getBlockRaw(s).catch(() => null);
             return {
               slot: s,
               time: b?.blockTime ?? null,
               height: b?.blockHeight ?? null,
-              txCount: b?.signatures?.length ?? 0,
+              txCount: b?.signatures.length ?? 0,
             } as RecentBlock;
           }),
         );
@@ -151,7 +148,6 @@ export default function Explorer() {
           value={stats ? formatNumber(stats.epoch) : "—"}
           sub={stats ? `${(stats.epochProgress * 100).toFixed(1)}% complete` : undefined}
         />
-        <StatCard label="TPS" value={stats?.tps != null ? formatNumber(stats.tps) : "—"} />
         <StatCard label="Validators" value={stats?.validatorCount != null ? formatNumber(stats.validatorCount) : "—"} />
         <StatCard label="Total supply" value={stats?.totalSupplyLamports != null ? formatBbc(stats.totalSupplyLamports, 0) : "—"} />
         <StatCard label="Transactions" value={stats?.transactionCount != null ? formatNumber(stats.transactionCount) : "—"} />

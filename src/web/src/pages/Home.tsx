@@ -8,7 +8,7 @@ function LiveBand() {
   const items: { label: string; value: string }[] = [
     { label: "Slot", value: stats ? formatNumber(stats.slot) : "—" },
     { label: "Epoch", value: stats ? formatNumber(stats.epoch) : "—" },
-    { label: "TPS", value: stats?.tps != null ? formatNumber(stats.tps) : "—" },
+    { label: "Transactions", value: stats?.transactionCount != null ? formatNumber(stats.transactionCount) : "—" },
     { label: "Validators", value: stats?.validatorCount != null ? formatNumber(stats.validatorCount) : "—" },
     {
       label: `Supply`,
@@ -42,11 +42,10 @@ function XLogo({ size = 22 }: { size?: number }) {
   );
 }
 
-function Feature({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+function Feature({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="card card-hover">
-      <div style={{ fontSize: 24 }}>{icon}</div>
-      <h3 style={{ marginTop: 10 }}>{title}</h3>
+      <h3>{title}</h3>
       <p className="muted small" style={{ marginTop: 6 }}>{children}</p>
     </div>
   );
@@ -60,9 +59,9 @@ export default function Home() {
           <img src="/hero-banner.png" alt="Black Bull Chain" className="hero-banner" />
           <h1 className="visually-hidden">Black Bull Chain</h1>
           <p className="lead">
-            {CHAIN_NAME} is a high-throughput, low-fee blockchain running the battle-tested Agave
-            runtime. Sub-second finality, {TICKER} for gas, and full compatibility with the Solana
-            toolchain you already know.
+            The biggest, blackest blockchain in the WORLD. 🐂 Monster throughput, rock-hard
+            finality, and enough girth to take any load you throw at it. {TICKER} for gas — no
+            toolchain left unsatisfied.
           </p>
           <div className="row" style={{ justifyContent: "center", marginTop: 26 }}>
             <Link to="/explorer" className="btn btn-primary">Open Explorer</Link>
@@ -77,21 +76,21 @@ export default function Home() {
 
         <section className="section">
           <div className="grid grid-4">
-            <Feature icon="⚡" title="Fast & cheap">
-              Thousands of transactions per second with fees measured in fractions of a cent —
-              inherited from the Agave/Solana runtime.
+            <Feature title="Fast & thick">
+              Thousands of transactions per second and fees so tiny you'll barely feel them.
+              {" "}{TICKER} finishes fast — but somehow always lasts.
             </Feature>
-            <Feature icon="🧰" title="Solana-compatible">
+            <Feature title="Handles any load">
               Works with <code>@solana/web3.js</code>, SPL tokens, and the <code>blackbull</code> CLI.
-              Point any Solana tool at a {CHAIN_NAME} RPC and it just works.
+              Point any Solana tool at {CHAIN_NAME} and it slides right in. No friction.
             </Feature>
-            <Feature icon="🖥️" title="Run your own node">
-              Anyone can host a validator and help secure the network. One script takes you from
-              genesis to a block-producing node.
+            <Feature title="Grow your own">
+              Anyone can stand one up. One script takes you from genesis to a fully engorged,
+              block-producing node — no experience necessary.
             </Feature>
-            <Feature icon="🔑" title="Own your keys">
-              A built-in browser wallet lets you create an address, hold {TICKER}, and send &amp;
-              receive in seconds — keys never leave your device.
+            <Feature title="Keep it in hand">
+              A built-in wallet lets you hold your {TICKER} and send it wherever, whenever.
+              Your keys, your girth — they never leave your device.
             </Feature>
           </div>
         </section>
@@ -100,8 +99,9 @@ export default function Home() {
           <div className="card">
             <h2>The {TICKER} token</h2>
             <p className="muted" style={{ marginTop: 10 }}>
-              {TICKER} is the native asset of {CHAIN_NAME}. It pays for transaction fees, secures the
-              network through staking, and moves value between accounts.
+              {TICKER} is the native asset of the biggest, blackest chain in the world. It pays your
+              fees, secures the network through staking, and moves value between accounts — always
+              hard, never soft. 🐂
             </p>
             <div className="kv" style={{ marginTop: 14 }}>
               <div className="k">Ticker</div><div className="v">{TICKER}</div>
@@ -114,9 +114,9 @@ export default function Home() {
             <h2>Get started in 3 steps</h2>
             <ol style={{ margin: "14px 0 0 0", listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
               {[
-                ["Create a wallet", <>Generate a {TICKER} address in your browser — no extension needed. <Link className="link" to="/wallet">Open wallet →</Link></>],
-                ["Get some BBC", <>On a dev network, request an airdrop from the faucet, or ask someone to send you {TICKER}.</>],
-                ["Send & explore", <>Send {TICKER} to any address and watch it confirm live in the <Link className="link" to="/explorer">explorer</Link>.</>],
+                ["Whip out a wallet", <>Generate a {TICKER} address right in your browser — no extension, no shame. <Link className="link" to="/wallet">Open wallet →</Link></>],
+                ["Get your hands on some BBC", <>Smash the faucet for a free airdrop, or sweet-talk someone into sliding you their {TICKER}.</>],
+                ["Send it", <>Fire {TICKER} at any address and watch it land live in the <Link className="link" to="/explorer">explorer</Link>. Instant, satisfying, repeatable.</>],
               ].map(([t, d], i) => (
                 <li key={i} className="row" style={{ alignItems: "flex-start", gap: 12 }}>
                   <span className="badge gold" style={{ minWidth: 26, justifyContent: "center" }}>{i + 1}</span>

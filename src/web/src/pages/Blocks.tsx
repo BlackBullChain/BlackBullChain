@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getConnection } from "../lib/rpc";
-import type { BlockLite } from "../lib/types";
+import { getConnection, getBlockRaw } from "../lib/rpc";
 import { useNetworkStats } from "../lib/hooks";
 import { formatNumber, timeAgo } from "../lib/format";
 import { HashLink, Notice, Loading, StatCard } from "../components/ui";
@@ -24,20 +23,19 @@ export default function Blocks() {
   const seen = useRef<Set<number>>(new Set());
   // Once the user loads older history, stop trimming the list so their scroll-back persists.
   const extendedRef = useRef(false);
+  const rowsRef = useRef<Row[]>([]);
+  rowsRef.current = rows;
   const { stats } = useNetworkStats(5000);
 
   // Fill in height / tx-count / time for a slot once it's confirmed and available.
   const enrich = useCallback(async (slot: number) => {
     if (slot < 0) return;
-    const c = getConnection();
-    const b = (await c
-      .getBlock(slot, { transactionDetails: "signatures", rewards: false, maxSupportedTransactionVersion: 0 })
-      .catch(() => null)) as unknown as BlockLite | null;
+    const b = await getBlockRaw(slot).catch(() => null);
     if (!b) return;
     setRows((prev) =>
       prev.map((r) =>
         r.slot === slot
-          ? { ...r, height: b.blockHeight ?? null, txCount: b.signatures?.length ?? 0, time: b.blockTime ?? null }
+          ? { ...r, height: b.blockHeight, txCount: b.signatures.length, time: b.blockTime }
           : r,
       ),
     );
@@ -86,6 +84,18 @@ export default function Blocks() {
       if (subId != null) c.removeSlotChangeListener(subId).catch(() => {});
     };
   }, [enrich, seedRecent]);
+
+  // Retry any rows still missing data — a block often isn't fetchable the instant it streams
+  // in, so we re-ask on a timer until height/txs/age are filled.
+  useEffect(() => {
+    const t = setInterval(() => {
+      rowsRef.current
+        .filter((r) => r.height === null)
+        .slice(0, 15) // bound per tick so we don't hammer the RPC
+        .forEach((r) => enrich(r.slot));
+    }, 2500);
+    return () => clearInterval(t);
+  }, [enrich]);
 
   // Page backwards through history (appends below; live stream keeps flowing at the top).
   const loadOlder = useCallback(async () => {

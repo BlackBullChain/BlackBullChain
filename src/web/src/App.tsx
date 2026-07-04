@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Explorer from "./pages/Explorer";
 import Blocks from "./pages/Blocks";
+import Transfers from "./pages/Transfers";
 import Block from "./pages/Block";
 import Tx from "./pages/Tx";
 import Address from "./pages/Address";
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/explorer" element={<Explorer />} />
         <Route path="/blocks" element={<Blocks />} />
+        <Route path="/transfers" element={<Transfers />} />
         <Route path="/block/:slot" element={<Block />} />
         <Route path="/tx/:sig" element={<Tx />} />
         <Route path="/address/:addr" element={<Address />} />

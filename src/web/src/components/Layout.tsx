@@ -1,5 +1,33 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
+
+// Play the intro clip once per page load. Browsers block autoplay-with-sound until the user
+// interacts, so we try immediately and, if blocked, fire on the first click/scroll/keypress.
+let introPlayed = false;
+function useIntroSound() {
+  useEffect(() => {
+    if (introPlayed) return;
+    introPlayed = true;
+    const audio = new Audio("/intro.mp3");
+    audio.volume = 0.85;
+    const events = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
+    const onInteract = () => {
+      audio.play().catch(() => {});
+      events.forEach((e) => document.removeEventListener(e, onInteract));
+    };
+    audio.play().catch(() => {
+      events.forEach((e) => document.addEventListener(e, onInteract, { passive: true }));
+    });
+  }, []);
+}
+
+// Plays when the $BBC button (-> pump.fun) is clicked. The click is a user gesture so this
+// is never blocked; the link opens in a new tab, so the sound plays here uninterrupted.
+function playBbcSound() {
+  const a = new Audio("/bbc-click.mp3");
+  a.volume = 0.9;
+  a.play().catch(() => {});
+}
 import { CHAIN_NAME, PUMPFUN_URL, X_URL } from "../lib/config";
 import { pingNode } from "../lib/rpc";
 
@@ -108,6 +136,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
+  useIntroSound();
   return (
     <>
       <header className="nav">
@@ -123,11 +152,12 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="nav-links">
               <NavLink to="/explorer">Explorer</NavLink>
               <NavLink to="/blocks">Blocks</NavLink>
+              <NavLink to="/transfers">Transfers</NavLink>
               <NavLink to="/wallet">Wallet</NavLink>
               <NavLink to="/peg">Peg</NavLink>
               <NavLink to="/docs">Docs</NavLink>
               <MoreMenu />
-              <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer">$BBC</a>
+              <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer" onClick={playBbcSound}>$BBC</a>
             </div>
           </nav>
           <div className="nav-actions">
@@ -142,11 +172,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="mobile-menu">
             <NavLink to="/explorer" onClick={closeMenu}>Explorer</NavLink>
             <NavLink to="/blocks" onClick={closeMenu}>Blocks</NavLink>
+            <NavLink to="/transfers" onClick={closeMenu}>Transfers</NavLink>
             <NavLink to="/wallet" onClick={closeMenu}>Wallet</NavLink>
             <NavLink to="/peg" onClick={closeMenu}>Peg</NavLink>
             <NavLink to="/docs" onClick={closeMenu}>Docs</NavLink>
             <a href="https://github.com/BlackBullChain/BlackBullChain" target="_blank" rel="noreferrer" onClick={closeMenu}>GitHub</a>
-            <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer" onClick={closeMenu}>$BBC</a>
+            <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer" onClick={() => { playBbcSound(); closeMenu(); }}>$BBC</a>
           </div>
         )}
       </header>

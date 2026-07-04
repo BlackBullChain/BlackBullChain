@@ -9,21 +9,34 @@ protocol level makes it a separate network: Solana nodes only gossip and replica
 peers that share the same *genesis hash* and *shred version*, so a chain with a different
 genesis can never join Solana.
 
-**Proof (generated locally with `blackbull-genesis`):**
+## Live network
 
-```
-Cluster type: Development
-Genesis hash: 9UizpyCTYTZpi9N9rb4Eua5tJFn3EhZn9zdg5cQM2uq1
-Shred version: 19956
-Capitalization: 1000000000000000000 lamports in 286 accounts   # = exactly 1,000,000,000 BBC
+The chain is live, produced by a bootstrap validator, with a public HTTPS RPC.
+
+| | |
+|---|---|
+| **Website / explorer / wallet** | https://blackbullchain.com |
+| **Live blocks** | https://blackbullchain.com/blocks |
+| **Public RPC (HTTP)** | https://rpc.blackbullchain.com |
+| **Public RPC (WebSocket)** | wss://ws.blackbullchain.com |
+| **Genesis hash** | `5cTSG1RJjRa1RQ9ZqgiQ6gWGzA72Mdf8nQ1LNp82pQoQ` |
+| **Total supply** | 1,000,000,000 BBC (fixed, `--inflation none`) |
+
+Point any Solana-compatible tool at the RPC and it just works:
+
+```bash
+# health check — anyone can verify the node is up
+curl -s https://rpc.blackbullchain.com -X POST -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}'      # -> {"result":"ok"}
+
+# with the CLI
+blackbull config set --url https://rpc.blackbullchain.com
+blackbull block-height
 ```
 
 That genesis hash is unrelated to Solana mainnet's
-`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`, and the capitalization is a **fixed
-1,000,000,000 BBC** (`--inflation none`, matching the pump.fun $BBC supply). Verify it
-yourself: run `scripts/bootstrap-validator.sh` — `blackbull-genesis` prints the hash, shred
-version and capitalization each time. (The hash varies per run unless the creation time is
-pinned; the canonical mainnet hash gets fixed at launch.)
+`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`, and the supply is a **fixed
+1,000,000,000 BBC** (matching the pump.fun $BBC supply).
 
 ## What this is (and isn't)
 
@@ -40,11 +53,12 @@ blackbullchain/
 ├── README.md
 ├── docs/
 │   ├── SPEC.md                     # full rebrand spec + naming map + roadmap
-│   └── adr/0001-fork-strategy.md   # why user-facing rebrand, not deep rename
+│   └── adr/                        # architecture decision records
 ├── scripts/
 │   ├── rebrand.sh                  # applies the surgical rebrand to src/node
-│   └── bootstrap-validator.sh      # genesis + launches the first BBC validator
-├── tests/                          # our own smoke tests (not upstream's)
+│   ├── bootstrap-validator.sh      # genesis + launches the first BBC validator
+│   ├── run-validator-service.sh    # launchd entrypoint: always-on validator
+│   └── run-tunnel-service.sh       # launchd entrypoint: Cloudflare named tunnel (public RPC)
 └── src/
     ├── node/                       # the Agave fork (upstream tree, rebranded)
     └── web/                        # website + block explorer + browser wallet (Vite/React)
@@ -52,34 +66,56 @@ blackbullchain/
 
 ## Website, explorer & wallet
 
-`src/web/` is a Vite + React + TypeScript app: a landing page explaining the project, a
-live **block explorer**, a **browser wallet** (create/import, send/receive BBC, faucet),
-and **docs** (host a validator, connect, create a wallet). It speaks the Solana-compatible
-JSON-RPC that a BlackBullChain node exposes, and the RPC endpoint is editable at runtime.
+`src/web/` is a Vite + React + TypeScript app: a landing page, a live **block explorer**,
+a real-time **Blocks** stream (subscribes to the node over WebSocket), a **browser wallet**
+(create/import, send/receive BBC, faucet), and **docs**. It speaks the Solana-compatible
+JSON-RPC a BlackBullChain node exposes. The RPC endpoint is fixed at build time via env vars
+(no in-app editing) so the deployed site always points at the canonical node.
 
 ```bash
 cd src/web
 npm install
-cp .env.example .env         # set VITE_RPC_URL to your node (default http://localhost:8899)
-npm run dev                  # http://localhost:5173
-npm run build                # static site in dist/ (deploy to Vercel/Netlify)
+cp .env.example .env          # then edit .env (see below)
+npm run dev                   # http://localhost:5173
+npm run build                 # static site in dist/ (deploy to Vercel/Netlify)
 ```
 
-With no node reachable, the explorer/wallet degrade gracefully ("no node") — start one with
-`scripts/bootstrap-validator.sh`, or point the endpoint at your Mac Mini over Tailscale.
+Environment variables (`src/web/.env`, all optional — sensible fallbacks built in):
 
-## Quick start
+| Var | Purpose | Example |
+|---|---|---|
+| `VITE_RPC_URL` | HTTP JSON-RPC endpoint | `https://rpc.blackbullchain.com` |
+| `VITE_WS_URL` | WebSocket (PubSub) endpoint — served on rpc-port + 1 | `wss://ws.blackbullchain.com` |
+| `VITE_X_URL` | Official X account | `https://x.com/blackbullchain` |
+| `VITE_PUMPFUN_URL` | pump.fun page for the $BBC token | `https://pump.fun/coin/<mint>` |
+| `VITE_CHAIN_NAME` / `VITE_TICKER` | Display name / ticker | `BlackBullChain` / `BBC` |
+
+## Quick start (build & run a node)
 
 ```bash
-# 1. Apply the rebrand to the vendored Agave tree
+# 1. Apply the rebrand to the vendored Agave tree (first time only)
 ./scripts/rebrand.sh
 
-# 2. Build (long; do this on the Mac Mini for the live node)
-cd src/node && cargo build --release   # produces target/release/blackbull-*
+# 2. Build (long — ~30-60 min; needs Rust 1.95, pinned via rust-toolchain.toml)
+cd src/node && cargo build --release        # produces target/release/blackbull-*
 
 # 3. Genesis + launch the first validator (the birth of the chain)
-./scripts/bootstrap-validator.sh
+./scripts/bootstrap-validator.sh            # reuses ledger/genesis on re-run
 ```
+
+`bootstrap-validator.sh` creates the keypairs + genesis (fixed 1B BBC), starts the faucet,
+and launches the validator with transaction history enabled (`getBlock` / block explorer
+work). Set `RPC_BIND_ADDRESS=0.0.0.0` to expose the RPC beyond localhost.
+
+### Always-on (macOS)
+
+The node and its public tunnel run as **launchd** services so they survive crashes and
+reboots:
+
+- `com.blackbull.validator` → `scripts/run-validator-service.sh` (keeps the validator up,
+  `caffeinate` prevents sleep, high file-descriptor limit).
+- `com.blackbull.tunnel` → `scripts/run-tunnel-service.sh` (a Cloudflare **named tunnel**
+  giving the stable public URLs `rpc.` / `ws.blackbullchain.com`).
 
 ## Rebrand at a glance
 
@@ -93,7 +129,6 @@ cd src/node && cargo build --release   # produces target/release/blackbull-*
 | `agave-ledger-tool` / `-install` / `-watchtower` | `blackbull-ledger-tool` / `-install` / `-watchtower` |
 | Token unit `SOL` | `BBC` |
 
-See [docs/SPEC.md](docs/SPEC.md) for the complete map and the path to a live node on the
-Mac Mini.
+See [docs/SPEC.md](docs/SPEC.md) for the complete naming map.
 
 Forked from Agave **v4.1.1**. Upstream is licensed Apache-2.0.
