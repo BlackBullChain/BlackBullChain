@@ -123,12 +123,14 @@ exec "$VALIDATOR" \
   --ledger "$LEDGER_DIR" \
   --rpc-port "$RPC_PORT" \
   --rpc-bind-address "$RPC_BIND_ADDRESS" \
-  --gossip-host "$GOSSIP_HOST" \
   --gossip-port "$GOSSIP_PORT" \
   --no-genesis-fetch \
   --no-snapshot-fetch \
   --no-poh-speed-test \
+  --no-wait-for-vote-to-start-leader \
   --full-rpc-api \
+  --enable-rpc-transaction-history \
+  --enable-extended-tx-metadata-storage \
   --rpc-faucet-address "127.0.0.1:9900" \
   --allow-private-addr \
   --log -

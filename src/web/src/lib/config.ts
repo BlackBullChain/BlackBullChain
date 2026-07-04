@@ -10,10 +10,16 @@ export const LAMPORTS_PER_BBC = 1_000_000_000;
 export const TOTAL_SUPPLY_BBC = 1_000_000_000;
 
 export const DEFAULT_RPC_URL = import.meta.env.VITE_RPC_URL || "http://localhost:8899";
+// WebSocket (PubSub) endpoint. The validator serves this on rpc-port + 1 (8900), which the
+// tunnel exposes at a separate host. If unset, web3.js would guess wss://<rpc-host> and fail.
+export const DEFAULT_WS_URL = import.meta.env.VITE_WS_URL || "";
 export const FAUCET_URL = import.meta.env.VITE_FAUCET_URL || "";
 
 // pump.fun page for the $BBC token. Set VITE_PUMPFUN_URL to https://pump.fun/coin/<mint>.
 export const PUMPFUN_URL = import.meta.env.VITE_PUMPFUN_URL || "https://pump.fun";
+
+// Official X (Twitter) account. Defaults to the official handle; override with VITE_X_URL.
+export const X_URL = import.meta.env.VITE_X_URL || "https://x.com/blackbullchain";
 
 // ---- 1:1 peg (pump.fun $BBC SPL on Solana  ->  native BBC on BlackBullChain) ----
 // SPL mint of the $BBC token on Solana (the pump.fun token).
@@ -25,4 +31,10 @@ export const SOLANA_RPC = import.meta.env.VITE_SOLANA_RPC || "https://api.mainne
 
 export function getRpcUrl(): string {
   return DEFAULT_RPC_URL;
+}
+
+// Explicit WebSocket endpoint. Empty string => let web3.js derive it (only correct when the
+// RPC host also serves PubSub on the same port, e.g. localhost dev).
+export function getWsUrl(): string {
+  return DEFAULT_WS_URL;
 }

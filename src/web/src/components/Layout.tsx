@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { CHAIN_NAME, PUMPFUN_URL } from "../lib/config";
+import { CHAIN_NAME, PUMPFUN_URL, X_URL } from "../lib/config";
 import { pingNode } from "../lib/rpc";
 
 function BullMark() {
+  // Shares the same asset as the browser-tab favicon (public/bull.svg), so the
+  // logo stays in sync everywhere. The bull is baked in the brand teal.
   return (
-    <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" style={{ color: "var(--gold)" }}>
-      <path d="M21.6 22.4c1.95 4.38 5.16 9.15 8.46 12.4-1.42.2-3.05.29-4.93.29C6.9 35.09 1.3 15.6 1.3 8.2c0-2.02.48-4.4.48-4.4C6.76 14.8 12.7 22 21.06 24.3c.35.09.7.16 1.06.2-.18-.7-.35-1.4-.52-2.1z" />
-      <path d="M48 34c0 4.2-4.1 7.5-8.7 7.5-6.3 0-10.9-4.1-15.5-13.3-2.1-4.2-4.1-12-4.1-16.8 0-3.2.6-4.8.6-4.8 2.95 7.1 4.35 9.4 9.1 15.7 3.7 4.9 7.5 8 12.6 10 .5.2 1.1-.05 1.28-.55.18-.55-.12-1.15-.68-1.34-2.42-.8-4.65-2.3-6.5-3.9 1.1-.1 2.35-.16 3.5-.16 4.95 0 8.5 3.28 8.5 7.8z" />
+    <img src="/bull.svg" width={24} height={24} alt="" aria-hidden="true" style={{ display: "block" }} />
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
     </svg>
   );
 }
@@ -115,6 +122,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </NavLink>
             <div className="nav-links">
               <NavLink to="/explorer">Explorer</NavLink>
+              <NavLink to="/blocks">Blocks</NavLink>
               <NavLink to="/wallet">Wallet</NavLink>
               <NavLink to="/peg">Peg</NavLink>
               <NavLink to="/docs">Docs</NavLink>
@@ -133,6 +141,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {menuOpen && (
           <div className="mobile-menu">
             <NavLink to="/explorer" onClick={closeMenu}>Explorer</NavLink>
+            <NavLink to="/blocks" onClick={closeMenu}>Blocks</NavLink>
             <NavLink to="/wallet" onClick={closeMenu}>Wallet</NavLink>
             <NavLink to="/peg" onClick={closeMenu}>Peg</NavLink>
             <NavLink to="/docs" onClick={closeMenu}>Docs</NavLink>
@@ -145,7 +154,13 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="footer">
         <div className="container spread">
           <div>{CHAIN_NAME} — The Biggest, Blackest Blockchain in the WORLD. 🐂</div>
-          <div className="row" style={{ gap: 16 }}>
+          <div className="row" style={{ gap: 16, alignItems: "center" }}>
+            {X_URL && (
+              <a href={X_URL} target="_blank" rel="noreferrer" aria-label="Follow on X"
+                className="row" style={{ gap: 6, alignItems: "center" }}>
+                <XIcon /> X
+              </a>
+            )}
             <a href="https://github.com/BlackBullChain/BlackBullChain" target="_blank" rel="noreferrer">GitHub</a>
             <NavLink to="/docs">Docs</NavLink>
           </div>

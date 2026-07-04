@@ -1,18 +1,19 @@
 :root {
-  --bg: #06121b;
-  --bg-elev: #0c1e2b;
-  --bg-elev-2: #14293a;
-  --border: #1e3a4d;
-  --border-soft: #13293a;
-  --text: #eaf2f6;
-  --text-muted: #8ba3b2;
-  --text-dim: #5d7382;
-  --gold: #2ee6c5;
-  --gold-soft: #66f0da;
-  --gold-dim: rgba(46, 230, 197, 0.12);
-  --green: #34d399;
-  --red: #f87171;
-  --blue: #5bb8e6;
+  /* Black & white theme */
+  --bg: #000000;
+  --bg-elev: #0d0d0d;
+  --bg-elev-2: #1a1a1a;
+  --border: #2c2c2c;
+  --border-soft: #1c1c1c;
+  --text: #ffffff;
+  --text-muted: #b3b3b3;
+  --text-dim: #7a7a7a;
+  --gold: #ffffff;                       /* accent = white */
+  --gold-soft: #d6d6d6;                   /* slightly dimmer for hover */
+  --gold-dim: rgba(255, 255, 255, 0.12);
+  --green: #ffffff;                       /* live indicator (monochrome) */
+  --red: #ff6b6b;                         /* errors only */
+  --blue: #cccccc;
   --radius: 14px;
   --radius-sm: 9px;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -212,8 +213,8 @@ code, .mono { font-family: var(--mono); }
 }
 .btn:hover { border-color: #3a3a42; color: var(--text); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-primary { background: var(--gold); color: #04241d; border-color: var(--gold); }
-.btn-primary:hover { background: var(--gold-soft); color: #04241d; }
+.btn-primary { background: var(--gold); color: #000; border-color: var(--gold); }
+.btn-primary:hover { background: var(--gold-soft); color: #000; }
 .btn-ghost { background: transparent; }
 .btn-sm { padding: 6px 11px; font-size: 0.82rem; }
 .btn-danger { color: var(--red); border-color: rgba(248,113,113,0.3); }
@@ -267,13 +268,44 @@ code, .mono { font-family: var(--mono); }
 .notice.ok { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08); color: var(--green); }
 
 /* hero */
-.hero { padding: 70px 0 40px; text-align: center; }
+.hero { padding: 8px 0 36px; text-align: center; }
 .hero .eyebrow { color: var(--gold); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; }
 .hero p.lead { color: var(--text-muted); font-size: 1.15rem; max-width: 620px; margin: 18px auto 0; }
-.glow { background: radial-gradient(600px 300px at 50% 0%, rgba(46,230,197,0.10), transparent 70%); }
+.glow { background: none; }
+
+/* hero banner (character art) — breaks out of the container so it can go ~1.5x wider.
+   The edges are feathered to transparent so the black artwork melts into the black page
+   instead of reading as a rectangular banner pasted on top. */
+.hero-banner {
+  display: block;
+  width: min(1600px, 96vw);
+  height: auto;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 9%, #000 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 9%, #000 82%, transparent 100%);
+  mask-composite: intersect;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 .gradient-text { background: linear-gradient(120deg, var(--gold-soft), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 .footer { border-top: 1px solid var(--border-soft); padding: 30px 0; color: var(--text-dim); font-size: 0.85rem; margin-top: 60px; }
+
+/* freshly-produced block row: flash the brand color, then settle */
+@keyframes rowFresh {
+  0% { background: var(--gold-dim); }
+  100% { background: transparent; }
+}
+.row-fresh td { animation: rowFresh 1.6s ease-out; }
+.row-fresh td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
 
 /* modal / popup */
 .modal-overlay {

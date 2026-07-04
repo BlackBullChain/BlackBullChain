@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CHAIN_NAME, TICKER } from "../lib/config";
+import { CHAIN_NAME, TICKER, X_URL } from "../lib/config";
 import { useNetworkStats } from "../lib/hooks";
 import { formatBbc, formatNumber } from "../lib/format";
 
@@ -34,6 +34,14 @@ function LiveBand() {
   );
 }
 
+function XLogo({ size = 22 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
+  );
+}
+
 function Feature({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
   return (
     <div className="card card-hover">
@@ -49,10 +57,8 @@ export default function Home() {
     <div className="glow">
       <div className="container">
         <section className="hero">
-          <div className="eyebrow">Solana-compatible Layer 1</div>
-          <h1 style={{ marginTop: 14 }}>
-            The chain that <span className="gradient-text">charges forward</span>
-          </h1>
+          <img src="/hero-banner.png" alt="Black Bull Chain" className="hero-banner" />
+          <h1 className="visually-hidden">Black Bull Chain</h1>
           <p className="lead">
             {CHAIN_NAME} is a high-throughput, low-fee blockchain running the battle-tested Agave
             runtime. Sub-second finality, {TICKER} for gas, and full compatibility with the Solana
@@ -121,6 +127,26 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="section">
+          <div className="card center" style={{ padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <div style={{ color: "var(--gold)" }}><XLogo size={40} /></div>
+            <h2 style={{ marginTop: 8 }}>Follow {CHAIN_NAME} on X</h2>
+            <p className="muted" style={{ maxWidth: 520, margin: "6px auto 0" }}>
+              Join the herd for chain updates, $BBC news, and everything happening on the
+              Biggest, Blackest Blockchain in the WORLD. 🐂
+            </p>
+            <a
+              className="btn btn-primary"
+              href={X_URL || "https://x.com/blackbullchain"}
+              target="_blank"
+              rel="noreferrer"
+              style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8 }}
+            >
+              <XLogo size={16} /> Follow @blackbullchain
+            </a>
+          </div>
+        </section>
+
         <section className="section card center" style={{ padding: "40px 20px" }}>
           <h2>Build on {CHAIN_NAME}</h2>
           <p className="muted" style={{ maxWidth: 560, margin: "10px auto 0" }}>
@@ -129,6 +155,9 @@ export default function Home() {
           <div className="row" style={{ justifyContent: "center", marginTop: 18 }}>
             <Link to="/docs" className="btn btn-primary">Read the docs</Link>
             <a className="btn" href="https://github.com/BlackBullChain/BlackBullChain" target="_blank" rel="noreferrer">View on GitHub</a>
+            {X_URL && (
+              <a className="btn" href={X_URL} target="_blank" rel="noreferrer">Follow on X</a>
+            )}
           </div>
         </section>
       </div>
