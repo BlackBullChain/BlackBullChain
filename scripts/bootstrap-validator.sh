@@ -17,8 +17,10 @@ NODE_DIR="$(cd "$NODE_DIR" && pwd)"
 LEDGER_DIR="${LEDGER_DIR:-$SCRIPT_DIR/../.blackbull/ledger}"
 KEYS_DIR="${KEYS_DIR:-$SCRIPT_DIR/../.blackbull/keys}"
 RPC_PORT="${RPC_PORT:-8899}"
+RPC_BIND_ADDRESS="${RPC_BIND_ADDRESS:-127.0.0.1}" # set to 0.0.0.0 to let others reach the RPC
 GOSSIP_PORT="${GOSSIP_PORT:-8001}"
-GOSSIP_HOST="${GOSSIP_HOST:-127.0.0.1}"          # set to the Mac Mini LAN/Tailscale IP to peer
+GOSSIP_HOST="${GOSSIP_HOST:-127.0.0.1}"          # set to the Mac LAN/Tailscale IP to peer
+RUN_FAUCET="${RUN_FAUCET:-1}"                     # 1 = start the faucet (enables airdrops)
 CLUSTER_TYPE="${CLUSTER_TYPE:-development}"        # development | devnet | testnet | mainnet-beta
 
 # Fixed total supply: 1,000,000,000 BBC (matches the pump.fun $BBC token). 1 BBC = 1e9 lamports.
@@ -42,6 +44,7 @@ bin() { if [ -x "$BIN_DIR/$1" ]; then echo "$BIN_DIR/$1"; else echo "$1"; fi; }
 KEYGEN="$(bin blackbull-keygen)"
 GENESIS="$(bin blackbull-genesis)"
 VALIDATOR="$(bin blackbull-validator)"
+FAUCET="$(bin blackbull-faucet)"
 
 command -v "$KEYGEN" >/dev/null 2>&1 || { echo "ERROR: blackbull-keygen not found. Build src/node first."; exit 1; }
 
@@ -105,13 +108,21 @@ else
   echo "  genesis created. total supply = $TOTAL_BBC BBC."
 fi
 
-# --- 3. launch the bootstrap validator ----------------------------------------------
-echo "==> [3/3] Launching bootstrap validator (Ctrl-C to stop)"
+# --- 3. faucet (optional, enables airdrops) -----------------------------------------
+if [ "$RUN_FAUCET" = "1" ]; then
+  echo "==> Starting faucet (airdrops enabled) -> log: /tmp/blackbull-faucet.log"
+  "$FAUCET" --keypair "$KEYS_DIR/faucet.json" >/tmp/blackbull-faucet.log 2>&1 &
+fi
+
+# --- 4. launch the bootstrap validator ----------------------------------------------
+echo "==> Launching bootstrap validator (Ctrl-C to stop)"
+echo "    RPC:  http://$RPC_BIND_ADDRESS:$RPC_PORT   (set RPC_BIND_ADDRESS=0.0.0.0 to expose)"
 exec "$VALIDATOR" \
   --identity "$KEYS_DIR/bootstrap-identity.json" \
   --vote-account "$KEYS_DIR/bootstrap-vote.json" \
   --ledger "$LEDGER_DIR" \
   --rpc-port "$RPC_PORT" \
+  --rpc-bind-address "$RPC_BIND_ADDRESS" \
   --gossip-host "$GOSSIP_HOST" \
   --gossip-port "$GOSSIP_PORT" \
   --no-genesis-fetch \
