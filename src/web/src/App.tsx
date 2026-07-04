@@ -6,6 +6,7 @@ import Block from "./pages/Block";
 import Tx from "./pages/Tx";
 import Address from "./pages/Address";
 import Wallet from "./pages/Wallet";
+import Peg from "./pages/Peg";
 import Docs from "./pages/Docs";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/tx/:sig" element={<Tx />} />
         <Route path="/address/:addr" element={<Address />} />
         <Route path="/wallet" element={<Wallet />} />
+        <Route path="/peg" element={<Peg />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="*" element={<Home />} />
       </Routes>

@@ -9,6 +9,7 @@ target/
 .claude-flow/
 **/node_modules/
 **/dist/
+relayer-state.json
 
 # local env / secrets
 .env

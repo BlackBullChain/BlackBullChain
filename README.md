@@ -4,8 +4,26 @@ A 1:1 fork of the [Agave](https://github.com/anza-xyz/agave) validator client (S
 canonical Rust node), rebranded to **BlackBullChain** and run as its own independent
 network. Native token: **BlackBullChain (BBC)**.
 
-This is not a Solana testnet/mainnet participant — it uses its own genesis, so it is a
-distinct chain that happens to run Solana's proven runtime.
+This is not a Solana testnet/mainnet participant — it has its own **genesis**, which at the
+protocol level makes it a separate network: Solana nodes only gossip and replicate with
+peers that share the same *genesis hash* and *shred version*, so a chain with a different
+genesis can never join Solana.
+
+**Proof (generated locally with `blackbull-genesis`):**
+
+```
+Cluster type: Development
+Genesis hash: 9UizpyCTYTZpi9N9rb4Eua5tJFn3EhZn9zdg5cQM2uq1
+Shred version: 19956
+Capitalization: 1000000000000000000 lamports in 286 accounts   # = exactly 1,000,000,000 BBC
+```
+
+That genesis hash is unrelated to Solana mainnet's
+`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`, and the capitalization is a **fixed
+1,000,000,000 BBC** (`--inflation none`, matching the pump.fun $BBC supply). Verify it
+yourself: run `scripts/bootstrap-validator.sh` — `blackbull-genesis` prints the hash, shred
+version and capitalization each time. (The hash varies per run unless the creation time is
+pinned; the canonical mainnet hash gets fixed at launch.)
 
 ## What this is (and isn't)
 

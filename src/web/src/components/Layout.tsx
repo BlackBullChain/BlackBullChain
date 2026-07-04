@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { CHAIN_NAME, DEFAULT_RPC_URL, PUMPFUN_URL, getRpcUrl, resetRpcUrl, setRpcUrl } from "../lib/config";
+import { CHAIN_NAME, PUMPFUN_URL } from "../lib/config";
 import { pingNode } from "../lib/rpc";
 
 function BullMark() {
@@ -45,6 +45,31 @@ function CloseIcon() {
   );
 }
 
+// Read-only network indicator (no in-app endpoint editing).
+function NetworkStatus() {
+  const [ok, setOk] = useState<boolean | null>(null);
+  useEffect(() => {
+    let alive = true;
+    async function check() {
+      const s = await pingNode();
+      if (alive) setOk(s.ok);
+    }
+    check();
+    const t = setInterval(check, 15000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+  const color = ok === null ? "var(--text-dim)" : ok ? "var(--green)" : "var(--red)";
+  const label = ok === null ? "…" : ok ? "Live" : "Offline";
+  return (
+    <span className="net-status" title="BlackBullChain network status">
+      <span className={`dot ${ok === null ? "pulse" : ""}`} style={{ color }} /> {label}
+    </span>
+  );
+}
+
 function MoreMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -72,69 +97,6 @@ function MoreMenu() {
   );
 }
 
-function RpcSwitcher() {
-  const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState(getRpcUrl());
-  const [status, setStatus] = useState<{ ok: boolean; version?: string; error?: string } | null>(null);
-  const [checking, setChecking] = useState(true);
-  const ref = useRef<HTMLDivElement>(null);
-
-  async function check() {
-    setChecking(true);
-    setStatus(await pingNode());
-    setChecking(false);
-  }
-  useEffect(() => {
-    check();
-    const t = setInterval(check, 15000);
-    return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => {
-    if (!open) return;
-    function onDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
-
-  function apply() {
-    setRpcUrl(url);
-    check();
-    setOpen(false);
-  }
-  function reset() {
-    resetRpcUrl();
-    setUrl(DEFAULT_RPC_URL);
-    check();
-  }
-
-  const dotColor = checking ? "var(--text-dim)" : status?.ok ? "var(--green)" : "var(--red)";
-  const label = checking ? "Connecting…" : status?.ok ? "Connected" : "Connect";
-
-  return (
-    <div style={{ position: "relative" }} ref={ref}>
-      <button className="btn-elev" onClick={() => setOpen((o) => !o)}>
-        <span className={`dot ${checking ? "pulse" : ""}`} style={{ color: dotColor }} /> {label}
-      </button>
-      {open && (
-        <div className="card" style={{ position: "absolute", right: 0, top: 44, width: 320, zIndex: 60, boxShadow: "0 12px 40px rgba(0,0,0,0.5)" }}>
-          <div className="field-label">RPC endpoint</div>
-          <input className="input mono" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="http://localhost:8899" />
-          {status && !status.ok && <div className="tiny" style={{ color: "var(--red)", marginTop: 8 }}>{status.error}</div>}
-          {status?.ok && status.version && <div className="tiny" style={{ color: "var(--green)", marginTop: 8 }}>Node v{status.version}</div>}
-          <div className="row" style={{ marginTop: 12 }}>
-            <button className="btn btn-primary btn-sm" onClick={apply}>Connect</button>
-            <button className="btn btn-ghost btn-sm" onClick={reset}>Reset</button>
-          </div>
-          <div className="tiny dim" style={{ marginTop: 10 }}>Point at any BlackBullChain node (e.g. your Mac Mini over Tailscale).</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Layout({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -154,6 +116,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="nav-links">
               <NavLink to="/explorer">Explorer</NavLink>
               <NavLink to="/wallet">Wallet</NavLink>
+              <NavLink to="/peg">Peg</NavLink>
               <NavLink to="/docs">Docs</NavLink>
               <MoreMenu />
               <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer">$BBC</a>
@@ -164,13 +127,14 @@ export default function Layout({ children }: { children: ReactNode }) {
               <SearchIcon />
               <span className="show-xl">Search</span>
             </button>
-            <RpcSwitcher />
+            <NetworkStatus />
           </div>
         </div>
         {menuOpen && (
           <div className="mobile-menu">
             <NavLink to="/explorer" onClick={closeMenu}>Explorer</NavLink>
             <NavLink to="/wallet" onClick={closeMenu}>Wallet</NavLink>
+            <NavLink to="/peg" onClick={closeMenu}>Peg</NavLink>
             <NavLink to="/docs" onClick={closeMenu}>Docs</NavLink>
             <a href="https://github.com/BlackBullChain/BlackBullChain" target="_blank" rel="noreferrer" onClick={closeMenu}>GitHub</a>
             <a className="ring-btn" href={PUMPFUN_URL} target="_blank" rel="noreferrer" onClick={closeMenu}>$BBC</a>

@@ -108,6 +108,12 @@ code, .mono { font-family: var(--mono); }
 }
 .btn-elev:hover { background: #1a3547; }
 
+/* read-only network status pill */
+.net-status {
+  display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px; border-radius: 6px;
+  background: var(--bg-elev-2); color: var(--text); font-size: 0.875rem; font-weight: 500; white-space: nowrap;
+}
+
 /* animated conic-ring button (Bullpen "Join $ANSEM") */
 @property --ring-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 .ring-btn {

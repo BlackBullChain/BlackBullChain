@@ -27,8 +27,14 @@ rebrand only what a user or operator actually sees. See
 |---|---|---|
 | Token name | Solana | BlackBullChain |
 | Ticker / unit label | `SOL` | `BBC` |
+| Total supply | inflationary | **fixed 1,000,000,000** (`--inflation none`), matches the pump.fun $BBC |
 | Smallest unit | lamport | lamport *(kept — named after L. Lamport, not Solana; renaming breaks the external SDK)* |
 | Display glyph | `◎` | `◎` in phase 1; optional swap in phase 3 |
+
+Supply is fixed at genesis: a **bridge reserve** primordial account holds the backing for the
+1:1 peg with the pump.fun $BBC token (see [ADR 0002](adr/0002-peg-bridge.md),
+`scripts/peg-relayer`, and the `/peg` page). Verified: `blackbull-genesis` reports
+`Capitalization: 1000000000000000000 lamports` (exactly 1,000,000,000 BBC).
 
 Display unit lives locally at `src/node/cli-output/src/display.rs:70` (`" SOL"`) plus
 `"SOL"` literals in `cli-output/src/cli_output.rs`. These are rebranded by `rebrand.sh`.
